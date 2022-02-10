@@ -22,17 +22,17 @@ export class Ec2CdkStack extends cdk.Stack {
       allowAllOutbound: true,
     })
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22))
-    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(3000))
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(80),
       'httpIpv4',
     )
     securityGroup.addIngressRule(
-      ec2.Peer.anyIpv6(),
-      ec2.Port.tcp(80),
-      'httpIpv6',
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(443),
+      'httpIpv4',
     )
+    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(3000))
 
     const role = new iam.Role(this, 'ec2Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
@@ -77,19 +77,23 @@ export class Ec2CdkStack extends cdk.Stack {
       keyName: key.keyPairName,
       role: role,
       init: ec2.CloudFormationInit.fromElements(
-        ec2.InitCommand.shellCommand('sudo apt-get update -y'),
+        ec2.InitCommand.shellCommand('sudo apt update'),
+        ec2.InitCommand.shellCommand('sudo apt install make nginx -y'),
         ec2.InitCommand.shellCommand(
-          'sudo add-apt-repository ppa:certbot/certbot',
+          'sudo snap install core; sudo snap refresh core',
         ),
+        ec2.InitCommand.shellCommand('sudo snap install --classic certbot'),
         ec2.InitCommand.shellCommand(
-          'sudo apt-get install -y nginx python3-certbot-nginx',
+          'sudo ln -s /snap/bin/certbot /usr/bin/certbot',
         ),
         ec2.InitCommand.shellCommand(
           'curl -L https://git.io/n-install | bash -s -- -y',
         ),
         ec2.InitCommand.shellCommand('. ~/.bashrc'),
         ec2.InitCommand.shellCommand('npm i -g pm2'),
-        ec2.InitCommand.shellCommand('npx playwright install-deps chromium'),
+        ec2.InitCommand.shellCommand(
+          'yes | npx playwright install-deps chromium',
+        ),
       ),
     })
 

@@ -16,9 +16,8 @@ void chromium.launch({ headless: true }).then(async (browser) => {
   })
   browserPage = await context.newPage()
 
-  PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
-    blocker.enableBlockingInPage(browserPage)
-  })
+  const blocker = await PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch)
+  await blocker.enableBlockingInPage(browserPage)
 
   await browserPage.goto(root)
 })
