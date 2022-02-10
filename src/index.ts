@@ -27,39 +27,44 @@ const getCurrentPage = () =>
   browserPage.locator('.pagination-link.is-current').first().textContent()
 
 app.get('/', async (req, res) => {
-  const { page } = req.query
-  await browserPage
-    .locator('[placeholder="Selecione o estado"]')
-    .fill('Minas Gerais')
-  await browserPage.locator('text="MG - Minas Gerais"').click()
-  await browserPage.locator('text="Somente MEI"').click()
-  await browserPage.locator('text="Pesquisar"').click()
+  try {
+    const { page } = req.query
+    await browserPage
+      .locator('[placeholder="Selecione o estado"]')
+      .fill('Minas Gerais')
+    await browserPage.locator('text="MG - Minas Gerais"').click()
+    await browserPage.locator('text="Somente MEI"').click()
+    await browserPage.locator('text="Pesquisar"').click()
 
-  let currentPage = await getCurrentPage()
+    let currentPage = await getCurrentPage()
 
-  if (page) {
-    while (currentPage !== page) {
-      await browserPage
-        .locator(
-          `.pagination-link.pagination-${
-            Number(currentPage) > Number(page) ? 'previous' : 'next'
-          }`,
-        )
-        .first()
-        .click()
-      currentPage = await getCurrentPage()
+    if (page) {
+      while (currentPage !== page) {
+        await browserPage
+          .locator(
+            `.pagination-link.pagination-${
+              Number(currentPage) > Number(page) ? 'previous' : 'next'
+            }`,
+          )
+          .first()
+          .click()
+        currentPage = await getCurrentPage()
+      }
     }
+
+    browserPage.on('response', async (response) => {
+      if (
+        response.request().method() === 'POST' &&
+        response.url().includes('/search')
+      ) {
+        const json = await response.json()
+        res.send(json)
+      }
+    })
+  } catch (error) {
+    console.log(error)
+    res.send(error)
   }
-
-  browserPage.on('response', async (response) => {
-    if (
-      response.request().method() === 'POST' &&
-      response.url().includes('/search')
-    ) {
-      const json = await response.json()
-      res.send(json)
-    }
-  })
 })
 
 app.listen(port, () => {
