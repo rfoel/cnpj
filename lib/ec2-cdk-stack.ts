@@ -8,31 +8,31 @@ export class Ec2CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    // Create a Key Pair to be used with this EC2 Instance
     const key = new KeyPair(this, 'KeyPair', {
       name: 'cdk-keypair',
       description: 'Key Pair created with CDK Deployment',
     })
 
-    // Create new VPC with 2 Subnets
-    const vpc = new ec2.Vpc(this, 'VPC', {
-      natGateways: 0,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'asterisk',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-      ],
+    const defaultVpc = ec2.Vpc.fromLookup(this, 'VPC', {
+      isDefault: true,
     })
 
-    // Allow SSH (TCP Port 22) access from anywhere
     const securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
-      vpc,
+      vpc: defaultVpc,
       allowAllOutbound: true,
     })
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22))
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(3000))
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(80),
+      'httpIpv4',
+    )
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv6(),
+      ec2.Port.tcp(80),
+      'httpIpv6',
+    )
 
     const role = new iam.Role(this, 'ec2Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
@@ -44,26 +44,43 @@ export class Ec2CdkStack extends cdk.Stack {
       ),
     )
 
-    // Use Latest Amazon Linux Image - CPU Type X86_64
-    const ami = new ec2.AmazonLinuxImage({
-      generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-      cpuType: ec2.AmazonLinuxCpuType.X86_64,
+    const userData = ec2.UserData.forLinux()
+    userData.addCommands(
+      'apt-get update -y',
+      'apt-get install -y git awscli ec2-instance-connect',
+      'until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git; do echo "Retrying"; done',
+      'cd /quickstart-linux-utilities',
+      'source quickstart-cfn-tools.source',
+      'qs_update-os || qs_err',
+      'qs_bootstrap_pip || qs_err',
+      'qs_aws-cfn-bootstrap || qs_err',
+      'mkdir -p /opt/aws/bin',
+      'ln -s /usr/local/bin/cfn-* /opt/aws/bin/',
+    )
+
+    const machineImage = ec2.MachineImage.genericLinux({
+      'us-east-1': 'ami-0b0ea68c435eb488d',
     })
 
-    // Create the instance using the Security Group, AMI, and KeyPair defined in the VPC created
     const ec2Instance = new ec2.Instance(this, 'Instance', {
-      vpc,
+      vpc: defaultVpc,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T2,
         ec2.InstanceSize.MICRO,
       ),
-      machineImage: ami,
+      machineImage: machineImage,
       securityGroup: securityGroup,
       keyName: key.keyPairName,
       role: role,
+      init: ec2.CloudFormationInit.fromElements(
+        ec2.InitCommand.shellCommand('sudo apt-get update -y'),
+        ec2.InitCommand.shellCommand('sudo apt-get install -y nginx'),
+        ec2.InitCommand.shellCommand('curl -L https://git.io/n-install | bash'),
+        ec2.InitCommand.shellCommand('npm i -g pm2'),
+      ),
+      userData,
     })
 
-    // Create outputs for connecting
     new cdk.CfnOutput(this, 'IP Address', {
       value: ec2Instance.instancePublicIp,
     })
