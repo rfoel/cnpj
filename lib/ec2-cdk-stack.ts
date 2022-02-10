@@ -78,9 +78,18 @@ export class Ec2CdkStack extends cdk.Stack {
       role: role,
       init: ec2.CloudFormationInit.fromElements(
         ec2.InitCommand.shellCommand('sudo apt-get update -y'),
-        ec2.InitCommand.shellCommand('sudo apt-get install -y nginx'),
-        ec2.InitCommand.shellCommand('curl -L https://git.io/n-install | bash'),
+        ec2.InitCommand.shellCommand(
+          'sudo add-apt-repository ppa:certbot/certbot',
+        ),
+        ec2.InitCommand.shellCommand(
+          'sudo apt-get install -y nginx python3-certbot-nginx',
+        ),
+        ec2.InitCommand.shellCommand(
+          'curl -L https://git.io/n-install | bash -s -- -y',
+        ),
+        ec2.InitCommand.shellCommand('. ~/.bashrc'),
         ec2.InitCommand.shellCommand('npm i -g pm2'),
+        ec2.InitCommand.shellCommand('npx playwright install-deps chromium'),
       ),
     })
 
@@ -94,7 +103,7 @@ export class Ec2CdkStack extends cdk.Stack {
     })
     new cdk.CfnOutput(this, 'ssh command', {
       value:
-        'ssh -i cdk-key.pem -o IdentitiesOnly=yes ec2-user@' +
+        'ssh -i cdk-key.pem -o IdentitiesOnly=yes ubuntu@' +
         ec2Instance.instancePublicIp,
     })
   }
