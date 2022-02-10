@@ -1,6 +1,12 @@
-import * as cdk from 'aws-cdk-lib';
-import { Ec2CdkStack } from '../lib/ec2-cdk-stack';
+import * as cdk from 'aws-cdk-lib'
 
-const app = new cdk.App();
+import { Ec2CdkStack } from '../lib/ec2-cdk-stack'
 
-new Ec2CdkStack(app, 'Ec2CdkStack', {});
+const app = new cdk.App()
+
+new Ec2CdkStack(app, 'Ec2CdkStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION,
+  },
+})

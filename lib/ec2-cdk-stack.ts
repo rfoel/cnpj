@@ -58,9 +58,13 @@ export class Ec2CdkStack extends cdk.Stack {
       'ln -s /usr/local/bin/cfn-* /opt/aws/bin/',
     )
 
-    const machineImage = ec2.MachineImage.genericLinux({
-      'us-east-1': 'ami-0b0ea68c435eb488d',
-    })
+    const machineImage = ec2.MachineImage.fromSsmParameter(
+      '/aws/service/canonical/ubuntu/server/focal/stable/current/amd64/hvm/ebs-gp2/ami-id',
+      {
+        os: ec2.OperatingSystemType.LINUX,
+        userData,
+      },
+    )
 
     const ec2Instance = new ec2.Instance(this, 'Instance', {
       vpc: defaultVpc,
@@ -78,7 +82,6 @@ export class Ec2CdkStack extends cdk.Stack {
         ec2.InitCommand.shellCommand('curl -L https://git.io/n-install | bash'),
         ec2.InitCommand.shellCommand('npm i -g pm2'),
       ),
-      userData,
     })
 
     new cdk.CfnOutput(this, 'IP Address', {

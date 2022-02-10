@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "deploy": "npm run build && cdk deploy --require-approval never",
+    "destroy": "cdk destroy --force",
     "lint": "eslint .",
     "start": "nodemon --watch 'src/' --exec 'ts-node src/index.ts' -e ts",
     "watch": "tsc -w"
