@@ -75,9 +75,10 @@ app.get('/', async (req, res) => {
     await browserPage.locator('text="Pesquisar"').click()
     console.log('Search complete')
 
-    if (page) {
-      let currentPage = await getCurrentPage(browserPage)
+    let currentPage = await getCurrentPage(browserPage)
+    if (currentPage !== page) {
       console.log(`Navigating to page ${page}`)
+
       while (currentPage !== page) {
         await browserPage
           .locator(
