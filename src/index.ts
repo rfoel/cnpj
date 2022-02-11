@@ -24,7 +24,10 @@ const launch = async () => {
 }
 
 const getCurrentPage = (browserPage: Page) =>
-  browserPage.locator('.pagination-link.is-current').first().textContent()
+  browserPage
+    .locator('.pagination-link.is-current')
+    .first()
+    .textContent() as Promise<string>
 
 app.get('/', async (req, res) => {
   try {
@@ -35,6 +38,21 @@ app.get('/', async (req, res) => {
     const blocker = await PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch)
     await blocker.enableBlockingInPage(browserPage)
     await browserPage.goto(root)
+
+    let currentPage = '1'
+
+    browserPage.on('response', async (response) => {
+      if (
+        response.request().method() === 'POST' &&
+        response.url().includes('/search') &&
+        currentPage === page
+      ) {
+        const json = await response.json()
+        console.log(`Got response with ${json?.data?.count} results`)
+        await browserPage.close()
+        return res.send(json)
+      }
+    })
 
     console.log('Selecting state...')
     await browserPage
@@ -75,7 +93,7 @@ app.get('/', async (req, res) => {
     await browserPage.locator('text="Pesquisar"').click()
     console.log('Search complete')
 
-    let currentPage = await getCurrentPage(browserPage)
+    currentPage = await getCurrentPage(browserPage)
     if (currentPage !== page) {
       console.log(`Navigating to page ${page}`)
 
@@ -92,18 +110,6 @@ app.get('/', async (req, res) => {
         console.log(`Navigated to page ${currentPage}`)
       }
     }
-
-    browserPage.on('response', async (response) => {
-      if (
-        response.request().method() === 'POST' &&
-        response.url().includes('/search')
-      ) {
-        const json = await response.json()
-        console.log(`Got response with ${json?.data?.count} results`)
-        await browserPage.close()
-        return res.send(json)
-      }
-    })
   } catch (error) {
     console.log(error)
     return res.send(error)
