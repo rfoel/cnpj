@@ -9,20 +9,24 @@ let browserContext: BrowserContext
 
 const root = 'https://casadosdados.com.br/solucao/cnpj/pesquisa-avancada/'
 
-void chromium.launch({ headless: false }).then(async (browser) => {
-  browserContext = await browser.newContext({
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
-  })
-  // keep the browser open
-  await browserContext.newPage()
-})
+const launch = async () => {
+  if (!browserContext) {
+    const browser = await chromium.launch({ headless: false })
+    browserContext = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
+    })
+    // keep the browser open
+    await browserContext.newPage()
+  }
+}
 
 const getCurrentPage = (browserPage: Page) =>
   browserPage.locator('.pagination-link.is-current').first().textContent()
 
 app.get('/', async (req, res) => {
   try {
+    await launch()
     const { page, excluir_mei, somente_mei } = req.query
 
     const browserPage = await browserContext.newPage()
