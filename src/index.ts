@@ -53,9 +53,8 @@ app.get('/', async (req, res) => {
     await browserPage.locator('text="Pesquisar"').click()
     console.log('Search complete')
 
-    let currentPage = await getCurrentPage()
-
     if (page) {
+      let currentPage = await getCurrentPage()
       console.log(`Navigating to page ${page}`)
       while (currentPage !== page) {
         await browserPage
@@ -77,13 +76,13 @@ app.get('/', async (req, res) => {
         response.url().includes('/search')
       ) {
         const json = await response.json()
-        console.log(`Got response with ${json?.data?.cnpj?.count} results`)
-        res.send(json)
+        console.log(`Got response with ${json?.data?.count} results`)
+        return res.send(json)
       }
     })
   } catch (error) {
     console.log(error)
-    res.send(error)
+    return res.send(error)
   }
 })
 
