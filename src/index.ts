@@ -29,6 +29,8 @@ app.get('/', async (req, res) => {
   try {
     const { page, excluir_mei, somente_mei } = req.query
 
+    await browserPage.reload()
+
     await browserPage
       .locator('[placeholder="Selecione o estado"]')
       .fill('Minas Gerais')
