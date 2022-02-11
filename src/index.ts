@@ -27,12 +27,18 @@ const getCurrentPage = () =>
 
 app.get('/', async (req, res) => {
   try {
-    const { page } = req.query
+    const { page, excluir_mei, somente_mei } = req.query
+
     await browserPage
       .locator('[placeholder="Selecione o estado"]')
       .fill('Minas Gerais')
     await browserPage.locator('text="MG - Minas Gerais"').click()
-    await browserPage.locator('text="Somente MEI"').click()
+
+    if (excluir_mei === 'true')
+      await browserPage.locator('text="Excluir MEI"').click()
+    if (somente_mei === 'true')
+      await browserPage.locator('text="Somente MEI"').click()
+
     await browserPage.locator('text="Pesquisar"').click()
 
     let currentPage = await getCurrentPage()
