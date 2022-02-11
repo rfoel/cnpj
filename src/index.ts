@@ -29,7 +29,7 @@ const getCurrentPage = (browserPage: Page) =>
 app.get('/', async (req, res) => {
   try {
     await launch()
-    const { page, excluir_mei, somente_mei } = req.query
+    const { excluir_mei, municipio, page, somente_mei } = req.query
 
     const browserPage = await browserContext.newPage()
     const blocker = await PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch)
@@ -43,6 +43,24 @@ app.get('/', async (req, res) => {
     await browserPage.locator('text="MG - Minas Gerais"').click()
     await browserPage.locator('text="Estado (UF)"').click()
     console.log('State selected')
+    console.log('Selection city...')
+    await browserPage.locator('[placeholder="Selecione um município"]').click()
+    const options = await browserPage
+      .locator('.dropdown-content:visible .dropdown-item')
+      .elementHandles()
+    if (typeof municipio === 'string') {
+      const textContents = await Promise.all(
+        options.map((option) => option.textContent()),
+      )
+      const index = textContents.findIndex((textContent) =>
+        textContent?.includes(municipio),
+      )
+      await options[index].click()
+    } else {
+      await options[Math.floor(Math.random() * options.length)].click()
+    }
+    await browserPage.locator('text="Municipio"').click()
+    console.log('City selected')
 
     if (excluir_mei === 'true') {
       console.log('Excluding MEI')
