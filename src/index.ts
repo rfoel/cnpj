@@ -29,23 +29,34 @@ app.get('/', async (req, res) => {
   try {
     const { page, excluir_mei, somente_mei } = req.query
 
+    console.log('Reloading page...')
     await browserPage.reload()
+    console.log('Page reloaded')
 
+    console.log('Selecting state...')
     await browserPage
       .locator('[placeholder="Selecione o estado"]')
       .fill('Minas Gerais')
     await browserPage.locator('text="MG - Minas Gerais"').click()
+    console.log('State selected')
 
-    if (excluir_mei === 'true')
+    if (excluir_mei === 'true') {
+      console.log('Excluding MEI')
       await browserPage.locator('text="Excluir MEI"').click()
-    if (somente_mei === 'true')
+    }
+    if (somente_mei === 'true') {
+      console.log('Only MEI')
       await browserPage.locator('text="Somente MEI"').click()
+    }
 
+    console.log('Hitting search...')
     await browserPage.locator('text="Pesquisar"').click()
+    console.log('Search complete')
 
     let currentPage = await getCurrentPage()
 
     if (page) {
+      console.log(`Navigating to page ${page}`)
       while (currentPage !== page) {
         await browserPage
           .locator(
@@ -56,6 +67,7 @@ app.get('/', async (req, res) => {
           .first()
           .click()
         currentPage = await getCurrentPage()
+        console.log(`Navigated to page ${currentPage}`)
       }
     }
 
@@ -65,6 +77,7 @@ app.get('/', async (req, res) => {
         response.url().includes('/search')
       ) {
         const json = await response.json()
+        console.log(`Got response with ${json?.data?.cnpj?.count} results`)
         res.send(json)
       }
     })
