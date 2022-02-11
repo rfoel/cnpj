@@ -1,43 +1,41 @@
 import { PlaywrightBlocker } from '@cliqz/adblocker-playwright'
 import fetch from 'cross-fetch'
 import * as express from 'express'
-import { chromium, Page } from 'playwright'
+import { BrowserContext, chromium, Page } from 'playwright'
 
 const app = express()
 const port = 3000
-let browserPage: Page
+let browserContext: BrowserContext
 
 const root = 'https://casadosdados.com.br/solucao/cnpj/pesquisa-avancada/'
 
-void chromium.launch({ headless: true }).then(async (browser) => {
-  const context = await browser.newContext({
+void chromium.launch({ headless: false }).then(async (browser) => {
+  browserContext = await browser.newContext({
     userAgent:
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
   })
-  browserPage = await context.newPage()
-
-  const blocker = await PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch)
-  await blocker.enableBlockingInPage(browserPage)
-
-  await browserPage.goto(root)
+  // keep the browser open
+  await browserContext.newPage()
 })
 
-const getCurrentPage = () =>
+const getCurrentPage = (browserPage: Page) =>
   browserPage.locator('.pagination-link.is-current').first().textContent()
 
 app.get('/', async (req, res) => {
   try {
     const { page, excluir_mei, somente_mei } = req.query
 
-    console.log('Reloading page...')
-    await browserPage.reload()
-    console.log('Page reloaded')
+    const browserPage = await browserContext.newPage()
+    const blocker = await PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch)
+    await blocker.enableBlockingInPage(browserPage)
+    await browserPage.goto(root)
 
     console.log('Selecting state...')
     await browserPage
       .locator('[placeholder="Selecione o estado"]')
       .fill('Minas Gerais')
     await browserPage.locator('text="MG - Minas Gerais"').click()
+    await browserPage.locator('text="Estado (UF)"').click()
     console.log('State selected')
 
     if (excluir_mei === 'true') {
@@ -54,7 +52,7 @@ app.get('/', async (req, res) => {
     console.log('Search complete')
 
     if (page) {
-      let currentPage = await getCurrentPage()
+      let currentPage = await getCurrentPage(browserPage)
       console.log(`Navigating to page ${page}`)
       while (currentPage !== page) {
         await browserPage
@@ -65,7 +63,7 @@ app.get('/', async (req, res) => {
           )
           .first()
           .click()
-        currentPage = await getCurrentPage()
+        currentPage = await getCurrentPage(browserPage)
         console.log(`Navigated to page ${currentPage}`)
       }
     }
@@ -77,6 +75,7 @@ app.get('/', async (req, res) => {
       ) {
         const json = await response.json()
         console.log(`Got response with ${json?.data?.count} results`)
+        await browserPage.close()
         return res.send(json)
       }
     })
