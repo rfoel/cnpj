@@ -11,7 +11,9 @@ const root = 'https://casadosdados.com.br/solucao/cnpj/pesquisa-avancada/'
 
 const launch = async () => {
   if (!browserContext) {
-    const browser = await chromium.launch({ headless: false })
+    const browser = await chromium.launch({
+      headless: true,
+    })
     browserContext = await browser.newContext({
       userAgent:
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
