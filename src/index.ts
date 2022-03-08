@@ -1,42 +1,59 @@
-import { PlaywrightBlocker } from '@cliqz/adblocker-playwright'
+import { PuppeteerBlocker } from '@cliqz/adblocker-puppeteer'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import chromium from 'chrome-aws-lambda'
 import fetch from 'cross-fetch'
-import * as express from 'express'
-import { BrowserContext, chromium, Page } from 'playwright'
+import * as puppeteer from 'puppeteer-core'
 
-const app = express()
-const port = 3000
-let browserContext: BrowserContext
+let browserPage: puppeteer.Page
 
 const root = 'https://casadosdados.com.br/solucao/cnpj/pesquisa-avancada/'
 
 const launch = async () => {
-  if (!browserContext) {
-    const browser = await chromium.launch({
-      headless: true,
+  if (!browserPage || browserPage.isClosed()) {
+    const browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
     })
-    browserContext = await browser.newContext({
-      userAgent:
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
+    browserPage = await browser.newPage()
+    await browserPage.setUserAgent(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
+    )
+    await browserPage.setViewport({
+      width: 1000,
+      height: 600,
     })
-    // keep the browser open
-    await browserContext.newPage()
+    const blocker = await PuppeteerBlocker.fromPrebuiltAdsAndTracking(fetch)
+    await blocker.enableBlockingInPage(browserPage)
   }
 }
 
-const getCurrentPage = (browserPage: Page) =>
+const getCurrentPage = (): Promise<string> =>
   browserPage
-    .locator('.pagination-link.is-current')
-    .first()
-    .textContent() as Promise<string>
+    .$('.pagination-link.is-current')
+    .then((element) => element?.getInnerText() as unknown as string)
 
-app.get('/', async (req, res) => {
+const delay = (ms?: 500) => new Promise((resolve) => setTimeout(resolve, ms))
+
+let result: APIGatewayProxyResult
+
+const waitForResult = async (): Promise<APIGatewayProxyResult> => {
+  if (!result) {
+    await delay()
+    return waitForResult()
+  }
+  await browserPage.close()
+  return result
+}
+
+export const handler = async (
+  event: APIGatewayProxyEvent,
+): Promise<APIGatewayProxyResult> => {
   try {
     await launch()
-    const { excluir_mei, municipio, page, somente_mei } = req.query
+    const { excluir_mei, municipio, page, somente_mei } =
+      event.queryStringParameters || {}
 
-    const browserPage = await browserContext.newPage()
-    const blocker = await PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch)
-    await blocker.enableBlockingInPage(browserPage)
     await browserPage.goto(root)
 
     let currentPage = '1'
@@ -45,77 +62,95 @@ app.get('/', async (req, res) => {
       if (
         response.request().method() === 'POST' &&
         response.url().includes('/search') &&
-        currentPage === page
+        (!page || (page && currentPage === page))
       ) {
         const json = await response.json()
         console.log(`Got response with ${json?.data?.count} results`)
-        await browserPage.close()
-        return res.send(json)
+        result = {
+          statusCode: 200,
+          body: JSON.stringify(json, null, 2),
+        }
       }
     })
 
     console.log('Selecting state...')
+    await browserPage.type('[placeholder="Selecione o estado"]', 'Minas Gerais')
+
     await browserPage
-      .locator('[placeholder="Selecione o estado"]')
-      .fill('Minas Gerais')
-    await browserPage.locator('text="MG - Minas Gerais"').click()
-    await browserPage.locator('text="Estado (UF)"').click()
+      .waitForText('MG - Minas Gerais')
+      .then((element) => element.click())
+
+    await browserPage.click('h1')
     console.log('State selected')
     console.log('Selection city...')
-    await browserPage.locator('[placeholder="Selecione um município"]').click()
-    const options = await browserPage
-      .locator('.dropdown-content:visible .dropdown-item')
-      .elementHandles()
+    await browserPage.click('[placeholder="Selecione um município"]')
+    const options = await browserPage.$$(
+      '.dropdown-menu.is-opened-top .dropdown-item',
+    )
+
     if (typeof municipio === 'string') {
-      const textContents = await Promise.all(
-        options.map((option) => option.textContent()),
+      await browserPage.type(
+        '[placeholder="Selecione um município"]',
+        municipio,
       )
-      const index = textContents.findIndex((textContent) =>
-        textContent?.includes(municipio),
-      )
-      await options[index].click()
+      await browserPage
+        .$('.dropdown-menu.is-opened-top .dropdown-item')
+        .then((element) => element?.click())
     } else {
       await options[Math.floor(Math.random() * options.length)].click()
     }
-    await browserPage.locator('text="Municipio"').click()
+    await browserPage.click('h1')
     console.log('City selected')
 
     if (excluir_mei === 'true') {
       console.log('Excluding MEI')
-      await browserPage.locator('text="Excluir MEI"').click()
+      await browserPage
+        .waitForText('Excluir MEI')
+        .then((element) => element.click())
     }
     if (somente_mei === 'true') {
       console.log('Only MEI')
-      await browserPage.locator('text="Somente MEI"').click()
+      await browserPage
+        .waitForText('Somente MEI')
+        .then((element) => element.click())
     }
 
     console.log('Hitting search...')
-    await browserPage.locator('text="Pesquisar"').click()
+    await browserPage.click('button.is-medium.is-success')
+    await browserPage.waitForResponse((response) =>
+      response.url().includes('/search'),
+    )
     console.log('Search complete')
 
-    currentPage = await getCurrentPage(browserPage)
-    if (currentPage !== page) {
-      console.log(`Navigating to page ${page}`)
+    currentPage = await getCurrentPage()
+
+    if (page && currentPage !== page) {
+      await browserPage.evaluate(
+        () =>
+          new Promise((resolve) => {
+            const element = document.querySelector(
+              '.pagination-link.is-current',
+            )
+            element?.scrollIntoView()
+            resolve(1)
+          }),
+      )
+
+      console.log(`Will navigate to page ${page}`)
 
       while (currentPage !== page) {
-        await browserPage
-          .locator(
-            `.pagination-link.pagination-${
-              Number(currentPage) > Number(page) ? 'previous' : 'next'
-            }`,
-          )
-          .first()
-          .click()
-        currentPage = await getCurrentPage(browserPage)
+        const selector = `.pagination-link.pagination-${
+          page && Number(page) < Number(currentPage) ? 'previous' : 'next'
+        }`
+        await browserPage.click(selector)
+        currentPage = await getCurrentPage()
         console.log(`Navigated to page ${currentPage}`)
       }
     }
+
+    return waitForResult()
   } catch (error) {
     console.log(error)
-    return res.send(error)
+    return { statusCode: 500, body: JSON.stringify(error, null, 2) }
   }
-})
-
-app.listen(port, () => {
-  console.log(`CNPJ app listening on port http://localhost:${port}`)
-})
+}
