@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/rfoel/cnpj/compare/v1.0.0...v1.0.1) (2022-05-02)
+
+
+### Bug Fixes
+
+* add array of user agents ([14e85b0](https://github.com/rfoel/cnpj/commit/14e85b098fa44e6ef3ff7f81ddc97726bb2a4250))
+
 # 1.0.0 (2022-03-08)
 
 
