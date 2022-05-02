@@ -4,6 +4,8 @@ import chromium from 'chrome-aws-lambda'
 import fetch from 'cross-fetch'
 import * as puppeteer from 'puppeteer-core'
 
+import userAgents from './userAgents'
+
 let browserPage: puppeteer.Page
 
 const root = 'https://casadosdados.com.br/solucao/cnpj/pesquisa-avancada/'
@@ -17,7 +19,7 @@ const launch = async () => {
     })
     browserPage = await browser.newPage()
     await browserPage.setUserAgent(
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
+      userAgents[Math.floor(Math.random() * userAgents.length)],
     )
     await browserPage.setViewport({
       width: 1000,
