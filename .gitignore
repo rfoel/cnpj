@@ -12,13 +12,16 @@
 # misc
 .DS_Store
 
-# sst build output
-.build
-.sst
+# Serverless directories
+.serverless
+.esbuild
+.serverless-offline
+.build 
 
 # environments
 .env*.local
 
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

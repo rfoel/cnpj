@@ -1,4 +1,39 @@
-export default [
+export const defaultBody = {
+  query: {
+    termo: [],
+    atividade_principal: [],
+    natureza_juridica: [],
+    uf: [],
+    municipio: [],
+    situacao_cadastral: 'ATIVA',
+    cep: [],
+    ddd: [],
+  },
+  range_query: {
+    data_abertura: {
+      lte: null,
+      gte: null,
+    },
+    capital_social: {
+      lte: null,
+      gte: null,
+    },
+  },
+  extras: {
+    somente_mei: false,
+    excluir_mei: false,
+    com_email: false,
+    incluir_atividade_secundaria: false,
+    com_contato_telefonico: false,
+    somente_fixo: false,
+    somente_celular: false,
+    somente_matriz: false,
+    somente_filial: false,
+  },
+  page: 1,
+}
+
+export const userAgents = [
   'Mozilla/4.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/5.0)',
   'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 6.0; tr) Opera 10.10',
   'Mozilla/4.0 (compatible; MSIE 6.0; X11; Linux i686; de) Opera 10.10',

@@ -1,0 +1,31 @@
+service: cnpj
+frameworkVersion: '3'
+
+provider:
+  logRetentionInDays: 1
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  stackName: cnpj
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-domain-manager
+
+custom:
+  customDomain:
+    domainName: cnpj.rfoel.dev
+    stage: prod
+    certificateName: '*.rfoel.dev'
+    createRoute53Record: true
+    createRoute53IPv6Record: true
+
+functions:
+  cnpj:
+    handler: handlers/cnpj.handler
+    memorySize: 1024
+    timeout: 30
+    events:
+      - http:
+          path: /
+          method: get
