@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/rfoel/cnpj/compare/v1.0.1...v2.0.0) (2022-05-03)
+
+
+### Features
+
+* use serverless framework ([68b2433](https://github.com/rfoel/cnpj/commit/68b243383d88a74884905272b344df8bd42fdb53))
+
+
+### BREAKING CHANGES
+
+* also changes the api, now we receive a full body from the user
+
 ## [1.0.1](https://github.com/rfoel/cnpj/compare/v1.0.0...v1.0.1) (2022-05-02)
 
 

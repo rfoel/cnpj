@@ -1,6 +1,6 @@
 {
   "name": "cnpj",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "deploy": "serverless deploy",
@@ -31,5 +31,5 @@
     "serverless-domain-manager": "^6.0.3",
     "serverless-plugin-typescript": "^2.1.2",
     "typescript": "^4.6.4"
-  }  
+  }
 }
