@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/rfoel/cnpj/compare/v2.0.0...v2.0.1) (2022-05-04)
+
+
+### Bug Fixes
+
+* use post and return request body ([8ae2083](https://github.com/rfoel/cnpj/commit/8ae2083c664aeb7f4d3bf3a58197e9891d9a67e6))
+
 # [2.0.0](https://github.com/rfoel/cnpj/compare/v1.0.1...v2.0.0) (2022-05-03)
 
 
