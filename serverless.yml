@@ -28,4 +28,4 @@ functions:
     events:
       - http:
           path: /
-          method: get
+          method: post

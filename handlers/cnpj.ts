@@ -75,7 +75,10 @@ export const handler = async (
 
     return {
       statusCode: 200,
-      body: JSON.stringify(parsedData),
+      body: JSON.stringify({
+        ...parsedData,
+        requestBody: event?.body || defaultBody,
+      }),
     }
   } catch (error) {
     await close()
