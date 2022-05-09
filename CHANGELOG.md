@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/rfoel/cnpj/compare/v2.0.2...v2.0.3) (2022-05-09)
+
+
+### Bug Fixes
+
+* add stage to provider options ([875eb7c](https://github.com/rfoel/cnpj/commit/875eb7c2c93ff6fbca55ab393fe2df87dbc04ea8))
+
 ## [2.0.2](https://github.com/rfoel/cnpj/compare/v2.0.1...v2.0.2) (2022-05-09)
 
 
