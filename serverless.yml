@@ -7,6 +7,7 @@ provider:
   region: us-east-1
   runtime: nodejs14.x
   stackName: cnpj
+  stage: ${opt:stage}
 
 plugins:
   - serverless-plugin-typescript
@@ -15,7 +16,7 @@ plugins:
 custom:
   customDomain:
     domainName: cnpj.rfoel.dev
-    stage: prod
+    stage: ${opt:stage}
     certificateName: '*.rfoel.dev'
     createRoute53Record: true
     createRoute53IPv6Record: true
