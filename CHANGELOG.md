@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/rfoel/cnpj/compare/v2.0.1...v2.0.2) (2022-05-09)
+
+
+### Bug Fixes
+
+* fix deploy ([736d551](https://github.com/rfoel/cnpj/commit/736d5519987fc50cb2f5ade108fbcff439335b19))
+
 ## [2.0.1](https://github.com/rfoel/cnpj/compare/v2.0.0...v2.0.1) (2022-05-04)
 
 
