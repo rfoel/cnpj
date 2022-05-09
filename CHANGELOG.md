@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/rfoel/cnpj/compare/v2.0.3...v2.0.4) (2022-05-09)
+
+
+### Bug Fixes
+
+* add get method to api ([d442a1a](https://github.com/rfoel/cnpj/commit/d442a1a2efbeabf9c4baee0fb5bfbd70ca081a88))
+
 ## [2.0.3](https://github.com/rfoel/cnpj/compare/v2.0.2...v2.0.3) (2022-05-09)
 
 
