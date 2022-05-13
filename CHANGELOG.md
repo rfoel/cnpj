@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/rfoel/cnpj/compare/v2.0.4...v2.1.0) (2022-05-13)
+
+
+### Features
+
+* use node v16 ([c4a57cc](https://github.com/rfoel/cnpj/commit/c4a57cc0d4f1670c525c99c1e2cf32cebcc67ad0))
+
 ## [2.0.4](https://github.com/rfoel/cnpj/compare/v2.0.3...v2.0.4) (2022-05-09)
 
 
