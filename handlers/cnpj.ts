@@ -84,8 +84,9 @@ export const handler = async (
       }),
     }
   } catch (error) {
+    console.log('ERROR', error)
     await close()
-    response = { statusCode: 500, body: JSON.stringify(error) }
+    response = { statusCode: 500, body: 'See cloudwatch for the error' }
   }
 
   console.log('RESPONSE', JSON.stringify(response, null, 2))
