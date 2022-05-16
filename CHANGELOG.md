@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/rfoel/cnpj/compare/v2.1.1...v2.1.2) (2022-05-16)
+
+
+### Bug Fixes
+
+* log error ([8e609bb](https://github.com/rfoel/cnpj/commit/8e609bb1dff536878d82ab55a55cb4861c913052))
+
 ## [2.1.1](https://github.com/rfoel/cnpj/compare/v2.1.0...v2.1.1) (2022-05-16)
 
 
