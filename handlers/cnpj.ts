@@ -32,7 +32,10 @@ const close = async () => {
 export const handler = async (
   event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
+  console.log('REQUEST', JSON.stringify(event, null, 2))
+
   let data
+  let response
 
   try {
     await launch()
@@ -82,6 +85,10 @@ export const handler = async (
     }
   } catch (error) {
     await close()
-    return { statusCode: 500, body: JSON.stringify(error) }
+    response = { statusCode: 500, body: JSON.stringify(error) }
   }
+
+  console.log('RESPONSE', JSON.stringify(response, null, 2))
+
+  return response
 }
