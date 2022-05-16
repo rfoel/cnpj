@@ -76,7 +76,7 @@ export const handler = async (
 
     await close()
 
-    return {
+    response = {
       statusCode: 200,
       body: JSON.stringify({
         ...parsedData,
