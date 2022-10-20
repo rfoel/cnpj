@@ -78,10 +78,7 @@ export const handler = async (
 
     response = {
       statusCode: 200,
-      body: JSON.stringify({
-        ...parsedData,
-        requestBody: event?.body || defaultBody,
-      }),
+      body: JSON.stringify(parsedData),
     }
   } catch (error) {
     console.log('ERROR', error)

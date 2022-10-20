@@ -6,7 +6,7 @@ updates:
       interval: daily
       time: '08:00'
     open-pull-requests-limit: 10
-    target-branch: develop
+    target-branch: main
     commit-message:
       prefix: fix
       prefix-development: chore

@@ -6,18 +6,17 @@ provider:
   name: aws
   region: us-east-1
   runtime: nodejs14.x
-  stackName: cnpj
   stage: ${opt:stage}
 
 plugins:
-  - serverless-plugin-typescript
+  - serverless-esbuild
   - serverless-domain-manager
 
 custom:
   customDomain:
-    domainName: cnpj.rfoel.dev
+    domainName: cnpj.rafaelfranco.com
     stage: ${opt:stage}
-    certificateName: '*.rfoel.dev'
+    certificateName: '*.rafaelfranco.com'
     createRoute53Record: true
     createRoute53IPv6Record: true
 
