@@ -6,7 +6,7 @@ provider:
   name: aws
   region: us-east-1
   runtime: nodejs14.x
-  stage: ${opt:stage}
+  stage: ${opt:stage, 'dev'}
 
 plugins:
   - serverless-esbuild
@@ -16,7 +16,7 @@ custom:
   customDomain:
     domainName: cnpj.rafaelfranco.com
     stage: ${opt:stage}
-    certificateName: '*.rafaelfranco.com'
+    certificateName: 'rafaelfranco.com'
     createRoute53Record: true
     createRoute53IPv6Record: true
 
