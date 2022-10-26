@@ -20,9 +20,19 @@ custom:
     createRoute53Record: true
     createRoute53IPv6Record: true
 
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    sourcesContent: false
+    exclude: ['aws-sdk']
+    target: 'node14'
+    platform: 'node'
+    external: ['chrome-aws-lambda']
+
 functions:
   cnpj:
-    handler: handlers/cnpj.handler
+    handler: functions/cnpj.handler
     memorySize: 1024
     timeout: 30
     events:
