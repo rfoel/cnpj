@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/rfoel/cnpj/compare/v2.1.3...v2.1.4) (2022-10-26)
+
+
+### Bug Fixes
+
+* bundle chrome-aws-lambda ([2f5c378](https://github.com/rfoel/cnpj/commit/2f5c3787977730c071063bb113c41bcdbad95eeb))
+
 ## [2.1.3](https://github.com/rfoel/cnpj/compare/v2.1.2...v2.1.3) (2022-05-16)
 
 
