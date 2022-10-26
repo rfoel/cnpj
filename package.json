@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "chrome-aws-lambda": "10.1.0",
-    "puppeteer-core": "10.1.0"
+    "puppeteer-core": "10.4.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.1",
