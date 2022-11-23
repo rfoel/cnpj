@@ -27,7 +27,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.0",
     "semantic-release": "^19.0.5",
     "serverless": "^3.23.0",
     "serverless-domain-manager": "^6.1.0",
