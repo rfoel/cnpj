@@ -19,7 +19,7 @@
     "@semantic-release/npm": "^9.0.1",
     "@semantic-release/release-notes-generator": "^10.0.3",
     "@types/aws-lambda": "^8.10.108",
-    "@typescript-eslint/eslint-plugin": "^5.41.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.41.0",
     "aws-lambda": "^1.0.7",
     "esbuild": "^0.15.12",
