@@ -31,7 +31,7 @@
     "semantic-release": "^19.0.5",
     "serverless": "^3.23.0",
     "serverless-domain-manager": "^6.1.0",
-    "serverless-esbuild": "^1.33.0",
+    "serverless-esbuild": "^1.35.0",
     "typescript": "^4.8.4"
   }
 }
